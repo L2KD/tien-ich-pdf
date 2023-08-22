@@ -183,4 +183,41 @@ $(function () {
             renderPage(currentPage);
         }
     });
+
+    $("#top-menu-button-share").click(async function () {
+       const sharePopUpElement = $("#share-popup");
+       if (sharePopUpElement.length > 0) {
+           sharePopUpElement.remove();
+       } else {
+           await $("body").append(SHARE_POPUP_ELEMENT);
+           const url = window.location.href;
+           var qrcode = new QRCode("share-popup-qr", {
+               text: url,
+               width: 110,
+               height: 110,
+               colorDark : "#000000",
+               colorLight : "#ffffff",
+               correctLevel : QRCode.CorrectLevel.H
+           });
+           qrcode.clear(); // clear the code.
+           qrcode.makeCode(url);
+       }
+    });
+
+    const SHARE_POPUP_ELEMENT = '' +
+        '<div id="share-popup" class="share-popup-wrapper">' +
+        '   <div class="share-popup-main">' +
+        '       <div class="share-popup-body">' +
+        '           <div class="share-popup-scanner-wrapper" title="Chữ ký số Smart CA" id="smartca-ad-float-button-scanner">' +
+        '               <div class="share-popup-button-scanner">' +
+        '                   <p>scan me</p>' +
+        '                   <i></i>' +
+        '                   <div id="share-popup-qr" class="share-popup-qr"></div>' +
+        '                   <span></span>' +
+        // '                   <img  height="30px" style="margin-top: 5px;margin-left: -20px;position: absolute;"/>' +
+        '               </div>' +
+        '           </div>' +
+        '       </div>' +
+        '   </div>' +
+        '</div>'
 });
