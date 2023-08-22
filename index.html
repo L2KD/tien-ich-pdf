@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm ảnh vào pdf</title>
+    <script src="./scripts/jquery-3.7.0.min.js"></script>
+    <script src="./scripts/pdf.js"></script>
+    <script src="./scripts/pdf.worker.js"></script>
+    <script src="./scripts/qrcode.min.js"></script>
+    <script src="./scripts/script.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./styles/style.css">
+    <link rel="stylesheet" href="./styles/style.css">
+</head>
+<body>
+<div class="top-menu-wrapper">
+    <div class="top-menu-left-wrapper">
+        <div class="top-menu-left-button-wrapper">
+            <div class="top-menu-button-with-text" typed="blue" title="Đi đến trang cuối"
+                 id="top-menu-button-huong-dan">
+                <i class="fa fa-cog" aria-hidden="true"></i>
+                <span>Hướng dẫn</span>
+            </div>
+            <div class="separator"></div>
+            <div class="top-menu-button-with-text" typed="red" title="Chọn tập tin pdf"
+                 id="top-menu-button-upload-pdf">
+                <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+                <span>Chọn PDF</span>
+            </div>
+            <input type="file" id="choose-pdf" accept="application/pdf" style="display: none" />
+            <div class="top-menu-button-with-text" typed="green" title="Chọn ảnh"
+                 id="top-menu-button-upload-image">
+                <i class="fa fa-image" aria-hidden="true"></i>
+                <span>Chọn ảnh</span>
+            </div>
+            <input type="file" id="choose-image" accept="image/png, image/gif, image/jpeg" style="display: none" />
+            <div class="separator"></div>
+            <div class="top-menu-button-with-text" typed="purple" title="Trở về trang đầu"
+                 id="top-menu-button-first-page">
+                <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+                <span>Trang đầu</span>
+            </div>
+            <div class="top-menu-button-with-text" typed="purple" title="Lùi lại 1 trang"
+                 id="top-menu-button-previous-page">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                <span>Trang trước</span>
+            </div>
+            <input id="top-menu-input-page" class="top-menu-input-page" type="number"
+                   min="1" value="1" style="margin-left: 5px" title="Nhập số của trang cần thêm ảnh"/>
+            <span style="font-size: 21px; color: var(--color-blue); margin: 5px 2px 5px 8px">/</span>
+            <input id="top-menu-page-nums-total"
+                   class="top-menu-input-page top-menu-input-page-disabled"
+                   type="number" min="1" value="1" style="margin-left: 5px; margin-right: 5px"
+                   title="Tổng số trang của file pdf"/>
+            <div class="top-menu-button-with-text" typed="purple" title="Đi tới 1 trang"
+                 id="top-menu-button-next-page">
+                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                <span>Trang sau</span>
+            </div>
+            <div class="top-menu-button-with-text" typed="purple" title="Đi đến trang cuối"
+                 id="top-menu-button-last-page">
+                <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+                <span>Trang cuối</span>
+            </div>
+            <div class="separator"></div>
+            <div class="top-menu-button-with-text" typed="red" title="Thu nhỏ thêm 10%"
+                 id="top-menu-button-zoom-in">
+                <i class="fa fa-search-minus" aria-hidden="true"></i>
+                <span>Thu nhỏ</span>
+            </div>
+            <div class="top-menu-button-with-text" typed="red" title="Phóng to thêm 10%"
+                 id="top-menu-button-zoom-out">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+                <span>Phóng to</span>
+            </div>
+            <div class="separator"></div>
+            <div class="top-menu-button-with-text" typed="purple" title="Trở lại kích thước mặc định"
+                 id="top-menu-button-zoom-reset" style="margin: 0 5px">
+                <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                <span>Chia sẻ</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="l2kd-plugin-left-side-bar-button-wrapper">
+    <div class="l2kd-plugin-left-side-bar-float-button" title="Nhấn để xem danh sách chữ ký đã thêm vào khung ký"
+         id="l2kd-plugin-left-side-bar-float-button">
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+    </div>
+</div>
+<div id="l2kd-empty-pdf" class="l2kd-empty-pdf-wrapper">
+    <div class="l2kd-empty-pdf-wrapper-image-wrapper">
+        <img src="resources/balloon.svg" width="20%" />
+    </div>
+
+    <div class="l2kd-empty-pdf-text-wrapper">
+        <b>Thật tuyệt! Hôm nay bạn không có file pdf nào cần xử lý</b>
+        <br/>
+        <span>Hãy tận hưởng một ngày tốt lành vì không có công việc để làm</span>
+    </div>
+</div>
+<div id="l2kd-plugin-pdf" class="l2kd-plugin-pdf-wrapper">
+    <div id="l2kd-plugin-pdf-viewer" class="l2kd-plugin-pdf-viewer">
+    </div>
+</div>
+</body>
+</html>
