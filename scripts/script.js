@@ -43,6 +43,17 @@ $(function () {
         console.log(file);
     });
 
+    $("#top-menu-input-page").click(function () {
+        $(this).select();
+    });
+
+    $("#top-menu-input-page").change(function () {
+        const pageNumber = Number($(this).val());
+        if (pageNumber > 0 && pageNumber <= l2kdPDFConfigs.totalPage) {
+            renderPage(pageNumber);
+        }
+    })
+
     function initPdfInfo() {
         $("#top-menu-input-page").val(l2kdPDFConfigs.currentPage);
         $("#top-menu-page-nums-total").val(l2kdPDFConfigs.totalPage);
@@ -191,16 +202,33 @@ $(function () {
        } else {
            await $("body").append(SHARE_POPUP_ELEMENT);
            const url = window.location.href;
+           $("#share-popup-input").val(url);
            var qrcode = new QRCode("share-popup-qr", {
                text: url,
-               width: 110,
-               height: 110,
-               colorDark : "#000000",
+               width: 120,
+               height: 120,
+               colorDark : "#3E3630",
                colorLight : "#ffffff",
                correctLevel : QRCode.CorrectLevel.H
            });
            qrcode.clear(); // clear the code.
            qrcode.makeCode(url);
+           $("#share-input-wrapper").mouseenter(function () {
+               $("#share-popup-button-copy").css("display", "block");
+           })
+           $("#share-input-wrapper").mouseleave(function () {
+               $("#share-popup-button-copy").css("display", "none");
+           })
+           $("#share-popup-button-copy").click(function () {
+               $("#share-popup-input").select();
+               navigator.clipboard.writeText(url);
+           })
+           $("#share-popup-button-close").click(function () {
+               const sharePopUpElement = $("#share-popup");
+               if (sharePopUpElement.length > 0) {
+                   sharePopUpElement.remove();
+               }
+           })
        }
     });
 
@@ -208,7 +236,7 @@ $(function () {
         '<div id="share-popup" class="share-popup-wrapper">' +
         '   <div class="share-popup-main">' +
         '       <div class="share-popup-body">' +
-        '           <div class="share-popup-scanner-wrapper" title="Chữ ký số Smart CA" id="smartca-ad-float-button-scanner">' +
+        '           <div class="share-popup-scanner-wrapper">' +
         '               <div class="share-popup-button-scanner">' +
         '                   <p>scan me</p>' +
         '                   <i></i>' +
@@ -216,6 +244,18 @@ $(function () {
         '                   <span></span>' +
         // '                   <img  height="30px" style="margin-top: 5px;margin-left: -20px;position: absolute;"/>' +
         '               </div>' +
+        '               <i class="fa fa-hand-o-right" style="margin-left: 13px; font-size: 30px; color: rgb(167, 48, 57)" aria-hidden="true"></i>' +
+        '               <lottie-player src="./resources/animation_phone_scanner.json" background="Transparent" speed="1" style="width: 200px; height: 200px; margin-top: -55px;" direction="1" mode="normal" loop autoplay></lottie-player>' +
+        '           </div>' +
+        '           <div class="share-input-wrapper" id="share-input-wrapper">' +
+        '               <input id="share-popup-input" readonly/>' +
+        '               <button id="share-popup-button-copy" title="Sao chép đường dẫn" style="display: none"><i class="fa fa-clipboard" aria-hidden="true"></i></button>' +
+        '           </div>' +
+        '           <div class="share-footer-wrapper">' +
+        '               <button id="share-popup-button-close" title="Sao chép đường dẫn" >' +
+        '                   <i class="fa fa-close" aria-hidden="true"></i>' +
+        '                   <span>Đóng</span>' +
+        '               </button>' +
         '           </div>' +
         '       </div>' +
         '   </div>' +

@@ -461,7 +461,7 @@ body {
     position: fixed;
     cursor: auto;
     padding: 5px;
-    border: solid 5px var(--color-light-blue);
+    /*border: solid 5px var(--color-light-blue);*/
 
     transform: scale(0);
     opacity: 0;
@@ -501,6 +501,12 @@ body {
     100% {
         opacity: .8;
     }
+}
+.share-popup-scanner-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
 }
 
 .share-popup-button-scanner {
@@ -579,13 +585,13 @@ body {
 .share-popup-button-scanner span::before {
     content: '';
     position: absolute;
-    top: 8%;
+    top: 6%;
     bottom: 0;
     left: 10%;
     width: 4px;
-    height: 85%;
-    background: #18c89b;
-    box-shadow: 0 0 15px 5px #18c89b;
+    height: 88%;
+    background: #ff1f1f;
+    box-shadow: 0 0 15px 5px #f17878;
     clip-path: inset(0);
     animation: share-popup-button-scanner-x 0.7s ease-in-out infinite alternate, share-popup-button-scanner-y 1.4s ease-in-out infinite;
 }
@@ -614,10 +620,63 @@ body {
     }
 }
 #share-popup-qr {
-    opacity: 0.5;
+    /*opacity: 0.6;*/
     position: absolute;
-    margin-top: 21px;
-    margin-left: 21px;
+    margin-top: 15px;
+    margin-left: 15px;
     border-radius: 5px;
     overflow: hidden;
+}
+.share-input-wrapper {
+    width: 75%;
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /*border: solid 1px var(--color-blue);*/
+    background: var(--color-ancient-blue);
+    border-radius: 10px;
+    padding: 5px;
+}
+.share-input-wrapper > input {
+    outline: none;
+    width: 100%;
+    height: 35px;
+    border: none;
+    background: var(--color-ancient-blue);
+    font-family: karla, sans-serif;
+    font-size: 17px;
+    color: var(--color-blue);
+    padding-left: 10px;
+}
+.share-input-wrapper > button {
+    outline: none;
+    height: 35px;
+    width: 35px;
+    border: none;
+    background: var(--color-ancient-blue);
+    cursor: pointer;
+    color: var(--color-blue);
+    font-size: 20px;
+    padding: 5px;
+    border-radius: 5px;
+}
+.share-input-wrapper > button:hover {
+    background: var(--color-light-blue);
+}
+.share-footer-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.share-footer-wrapper > button {
+    width: 90px;
+    height: 35px;
+    background: var(--color-super-light-blue);
+    color: var(--color-blue);
+    border-radius: 5px;
+    border-width: 0 0 2px 0;
+    border-bottom: solid 2px var(--color-blue);
+    cursor: pointer;
 }
