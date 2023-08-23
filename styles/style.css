@@ -441,7 +441,7 @@ body {
 }
 /**     SHARE POPUP ELEMENT   */
 .share-popup-wrapper {
-    background: rgba(24, 20, 20, 0.4);
+    background: rgba(255, 255, 255, 0.4);
     width: 100%;
     height: 100%;
     z-index: 100000;
@@ -471,6 +471,7 @@ body {
 }
 .share-popup-body {
     background: white;
+
 }
 @keyframes share-popup-scale-in {
     100% {
@@ -634,6 +635,7 @@ body {
     justify-content: center;
     align-items: center;
     /*border: solid 1px var(--color-blue);*/
+    border-bottom: solid 2px var(--color-blue);
     background: var(--color-ancient-blue);
     border-radius: 10px;
     padding: 5px;
@@ -676,7 +678,11 @@ body {
     background: var(--color-super-light-blue);
     color: var(--color-blue);
     border-radius: 5px;
-    border-width: 0 0 2px 0;
-    border-bottom: solid 2px var(--color-blue);
+    /*border-width: 0 0 2px 0;*/
+    /*border-bottom: solid 2px var(--color-blue);*/
     cursor: pointer;
+    border: none;
+}
+.share-footer-wrapper > button:active {
+    filter: blur(1px);
 }
