@@ -4,6 +4,9 @@ var url = 'https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/examples/le
 $(function () {
     let l2kdPDFData = null; // Current pdf loaded
     let pagePositionArray = [];
+    let elementInCanvasArray = [];
+    let elementAdded = [];
+    let elementAddedFiltered = [];
     const l2kdPDFDefaultConfigs = {
         scale: 1, // default
         totalPage: 1,
@@ -38,8 +41,29 @@ $(function () {
         }
     });
 
-    $("#choose-image").change(function (event) {
+    $("#choose-image").change(async function (event) {
         const file = event.target.files[0];
+
+        var reader = new FileReader();
+        reader.onload = function () {
+            let base64 = reader.result;
+            // base64 = base64.replaceAll("data:image/jpeg;base64,", "").replaceAll("data:image/png;base64,", "");
+            elementInCanvasArray.push({
+                idSign: new Date().getTime(),
+                imageSource: base64,
+                vaiTro: "vaiTro",
+                top: 300,
+                left: 400,
+                page: l2kdPDFConfigs.currentPage,
+                width: 200,
+                height: 65,
+                vaiTroStt: "1"
+            });loadElementInCanvas();
+        };
+        reader.onerror = function (error) {
+            console.log('Error: ', error);
+        };
+        reader.readAsDataURL(file);
         console.log(file);
     });
 
@@ -129,10 +153,9 @@ $(function () {
         l2kdPDFPdfElement.append('<div style="height: 100px"></div>');
     }
 
-    function getBase64(file) {
+    async function getBase64(file) {
         var reader = new FileReader();
         let result;
-        reader.readAsDataURL(file);
         reader.onload = function () {
             console.log(reader.result);
             result = reader.result;
@@ -140,6 +163,7 @@ $(function () {
         reader.onerror = function (error) {
             console.log('Error: ', error);
         };
+        await reader.readAsDataURL(file);
         return result;
     }
 
@@ -231,6 +255,81 @@ $(function () {
            })
        }
     });
+
+    async function loadElementInCanvas() {
+        const l2kdPluginElement = $("#l2kd-plugin-pdf");
+        if (l2kdPluginElement.length > 0) {
+            $(".l2kd-plugin-element-wrapper").remove();
+            const currentPage = l2kdPDFConfigs.currentPage;
+            const pageFilter = elementInCanvasArray.filter(element => element.page === currentPage);
+            if (pageFilter.length > 0) {
+                for (let i = 0; i < pageFilter.length; i++) {
+                    const element = pageFilter[i];
+                    const elementInCanvasElement = '' +
+                        '<div class="l2kd-plugin-element-wrapper" id="l2kd-plugin-element-' + element.idSign + '" style="top: ' + element.top + 'px; left: ' + element.left + 'px; position: absolute">' +
+                        '   <div class="l2kd-plugin-element-button-wrapper">' +
+                        '       <div class="l2kd-plugin-element-button" id="l2kd-plugin-element-button-' + element.idSign + '" data-id-sign="' +  element.idSign + '">' +
+                        '           <i class="fa fa-times" aria-hidden="true"></i>' +
+                        '       </div>' +
+                        '       <div class="l2kd-plugin-element-button-vai-tro-text">' +
+                        '           <span>' + element.vaiTro + '</span>' +
+                        '       </div>' +
+                        '   </div>' +
+                        '   <div class="smartcav2-plugin-signature" id="l2kd-plugin-element-resize-' + element.idSign +'" style="width: ' + element.width + 'px; height: ' + element.height + 'px;">' +
+                        '       <img src="' + element.imageSource + '" />' +
+                        '   </div>' +
+                        '</div>';
+
+                    $("#l2kd-plugin-pdf-viewer-" + element.page).append(elementInCanvasElement);
+
+                    $("#l2kd-plugin-element-button-" + element.idSign).click(async function() {
+                        const idSign = $(this).attr("data-id-sign");
+                        const listAdded = elementAdded;
+                        const listInCanvas = elementInCanvasArray;
+                        elementAdded = listAdded.filter(el => (el.idSign + "") !== idSign);
+                        elementAddedFiltered = elementAddedFiltered.filter(el => (el.idSign + "") !== idSign);
+                        elementInCanvasArray = listInCanvas.filter(el => (el.idSign + "") !== idSign);
+                        // await loadDanhSachChuKyDaThem();
+                        const elementInCanvasElement = document.getElementById("l2kd-plugin-element-" + idSign);
+                        if (elementInCanvasElement) {
+                            elementInCanvasElement.remove();
+                        }
+                    });
+
+                    await $("#l2kd-plugin-element-" + element.idSign).draggable({
+                        containment: "#l2kd-plugin-canvas-" + element.page,
+                        stop: function (event, ui) {
+                            const idElement = ui.helper[0].getAttribute("id");
+                            const idSign = idElement.replaceAll("l2kd-plugin-element-", "");
+                            const position = ui.position;
+                            const findIndex = elementInCanvasArray.findIndex(sig => (sig.idSign + "") === idSign);
+                            if (findIndex >= 0) {
+                                elementInCanvasArray[findIndex].top = position.top;
+                                elementInCanvasArray[findIndex].left = position.left;
+                            }
+
+                            console.log('top: ' + position.top);
+                            console.log('left: ' + position.left);
+                        }
+                    });
+                    await $("#l2kd-plugin-element-resize-" + element.idSign).resizable({
+                        resize: function ( event, ui ) {
+                            const idElement = ui.helper[0].getAttribute("id");
+                            const idSign = idElement.replaceAll("l2kd-plugin-element-resize-", "");
+                            const size = ui.size;
+                            const findIndex = elementInCanvasArray.findIndex(sig => (sig.idSign + "") === idSign);
+                            if (findIndex >= 0) {
+                                elementInCanvasArray[findIndex].width = size.width;
+                                elementInCanvasArray[findIndex].height = size.height;
+                            }
+                            // const signatureWrapperElement = $("#l2kd-plugin-element-button-167297857973101").parents("div:first");
+                            // signatureWrapperElement.css({width: size.width});
+                        }
+                    });
+                }
+            }
+        }
+    }
 
     const SHARE_POPUP_ELEMENT = '' +
         '<div id="share-popup" class="share-popup-wrapper">' +
