@@ -1,12 +1,14 @@
 var url = 'https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/examples/learning/helloworld.pdf';
-
-
 $(function () {
+    const { degrees, PDFDocument, rgb, StandardFonts } = PDFLib;
+
     let l2kdPDFData = null; // Current pdf loaded
+    let l2kdPDFByteArrayData = null;
     let pagePositionArray = [];
     let elementInCanvasArray = [];
     let elementAdded = [];
     let elementAddedFiltered = [];
+    let pdfFile = null;
     const l2kdPDFDefaultConfigs = {
         scale: 1, // default
         totalPage: 1,
@@ -28,6 +30,7 @@ $(function () {
 
     $("#choose-pdf").change(function (event) {
         const file = event.target.files[0];
+        pdfFile = file;
         console.log(file);
         loadFileToPdf(file);
     });
@@ -48,23 +51,78 @@ $(function () {
         reader.onload = function () {
             let base64 = reader.result;
             // base64 = base64.replaceAll("data:image/jpeg;base64,", "").replaceAll("data:image/png;base64,", "");
-            elementInCanvasArray.push({
-                idSign: new Date().getTime(),
-                imageSource: base64,
-                vaiTro: "vaiTro",
-                top: 300,
-                left: 400,
-                page: l2kdPDFConfigs.currentPage,
-                width: 200,
-                height: 65,
-                vaiTroStt: "1"
-            });loadElementInCanvas();
+
+            // const imageElement = document.getElementById("image-no-background-img");
+            const imageElement = document.createElement("img");
+            imageElement.src = base64;
+            imageElement.onload = function handleLoad() {
+                const width = imageElement.width;
+                const height = imageElement.height;
+                // const canvas = document.getElementById("image-no-background-canvas");
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                const image = imageElement;
+                canvas.height = height;
+                canvas.width = width;
+                ctx.drawImage(image,0,0);
+                var imgd = ctx.getImageData(0, 0, width, height),
+                    pix = imgd.data,
+                    newColor = {r:0,g:0,b:0, a:0};
+                for (var i = 0, n = pix.length; i <n; i += 4) {
+                    var r = pix[i],
+                        g = pix[i+1],
+                        b = pix[i+2];
+                    if(!(r >= 100 && g <= 150)){
+                        // Change the white to the new color.
+                        pix[i] = newColor.r;
+                        pix[i+1] = newColor.g;
+                        pix[i+2] = newColor.b;
+                        pix[i+3] = newColor.a;
+                    } else if (r >= 100 && g <= 150) {
+                        pix[i] = 255;
+                        pix[i+1] = 0;
+                        pix[i+2] = 0;
+                    }
+                }
+                ctx.putImageData(imgd, 0, 0);
+                const base64Canvas  = canvas.toDataURL();
+                console.log(base64Canvas);
+
+                var req = new XMLHttpRequest;
+                req.open('GET', base64Canvas);
+                req.responseType = 'arraybuffer';
+                req.onload = function fileLoaded(e)
+                {
+                    var byteArray = new Uint8Array(e.target.response);
+                    // var shortArray = new Int16Array(e.target.response);
+                    // var unsignedShortArray = new Int16Array(e.target.response);
+                    // etc.
+
+                    elementInCanvasArray.push({
+                        idSign: new Date().getTime(),
+                        imageSource: base64Canvas,
+                        vaiTro: "vaiTro",
+                        top: 300,
+                        left: 300,
+                        page: l2kdPDFConfigs.currentPage,
+                        width: 250,
+                        height: 150,
+                        vaiTroStt: "1",
+                        // imageArrayBuffer: byteArray
+                        imageArrayBuffer: base64
+                    });
+                    loadElementInCanvas();
+                }
+                req.send();
+
+
+            };
         };
         reader.onerror = function (error) {
             console.log('Error: ', error);
         };
         reader.readAsDataURL(file);
-        console.log(file);
+        $(this).val(null);
     });
 
     $("#top-menu-input-page").click(function () {
@@ -76,7 +134,7 @@ $(function () {
         if (pageNumber > 0 && pageNumber <= l2kdPDFConfigs.totalPage) {
             renderPage(pageNumber);
         }
-    })
+    });
 
     function initPdfInfo() {
         $("#top-menu-input-page").val(l2kdPDFConfigs.currentPage);
@@ -167,15 +225,16 @@ $(function () {
         return result;
     }
 
-    function loadFileToPdf(file) {
+    async function loadFileToPdf(file) {
         //Step 2: Read the file using file reader
-        var fileReader = new FileReader();
+        let fileReader = new FileReader();
         fileReader.onload = function () {
-            result = new Uint8Array(fileReader.result);
+            const result = new Uint8Array(fileReader.result);
             loadPdf(result);
+            l2kdPDFByteArrayData = new Uint8Array(fileReader.result);
         };
         //Step 3:Read the file as ArrayBuffer
-        fileReader.readAsArrayBuffer(file);
+        await fileReader.readAsArrayBuffer(file);
     }
 
     $("#top-menu-button-first-page").click(function () {
@@ -329,6 +388,34 @@ $(function () {
                 }
             }
         }
+    }
+
+    $("#top-menu-button-huong-dan").click(async function () {
+        //Step 2: Read the file using file reader
+        let fileReader = new FileReader();
+        fileReader.onload = function () {
+            const result = new Uint8Array(fileReader.result);
+            createPdf(result);
+        };
+        //Step 3:Read the file as ArrayBuffer
+        await fileReader.readAsArrayBuffer(pdfFile);
+    });
+
+    async function createPdf(arrayBuffer) {
+        const pageFilter = elementInCanvasArray.filter(element => element.page === 1);
+        var imgData = pageFilter[0].imageArrayBuffer;
+        const pdfDoc = await PDFDocument.load(arrayBuffer);
+        const pngImage = await pdfDoc.embedPng(imgData);
+        const pngDims = pngImage.scale(0.5)
+        const page = pdfDoc.getPage(0);
+        page.drawImage(pngImage, {
+            x: pageFilter[0].left,
+            y: page.getHeight() - pageFilter[0].top,
+            width: pageFilter[0].width,
+            height: pageFilter[0].height
+        });
+        const pdfBytes = await pdfDoc.save();
+        download(pdfBytes, "pdf-lib_modification_example.pdf", "application/pdf");
     }
 
     const SHARE_POPUP_ELEMENT = '' +
