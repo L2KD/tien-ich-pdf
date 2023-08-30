@@ -108,8 +108,8 @@ $(function () {
                         width: 250,
                         height: 150,
                         vaiTroStt: "1",
-                        // imageArrayBuffer: byteArray
-                        imageArrayBuffer: base64
+                        imageArrayBuffer: byteArray
+                        // imageArrayBuffer: base64
                     });
                     loadElementInCanvas();
                 }
@@ -176,6 +176,8 @@ $(function () {
                     $("#top-menu-input-page").val(pageNumber);
                     $("#l2kd-empty-pdf").css("display",  "none");
                 });
+            }).then(function () {
+                loadElementInCanvas();
             });
         }
     }
@@ -402,17 +404,18 @@ $(function () {
     });
 
     async function createPdf(arrayBuffer) {
-        const pageFilter = elementInCanvasArray.filter(element => element.page === 1);
+        const currentPage = l2kdPDFConfigs.currentPage;
+        const pageFilter = elementInCanvasArray.filter(element => element.page === currentPage);
+        const scale = l2kdPDFConfigs.scale;
         var imgData = pageFilter[0].imageArrayBuffer;
         const pdfDoc = await PDFDocument.load(arrayBuffer);
         const pngImage = await pdfDoc.embedPng(imgData);
-        const pngDims = pngImage.scale(0.5)
-        const page = pdfDoc.getPage(0);
+        const page = pdfDoc.getPage(currentPage - 1);
         page.drawImage(pngImage, {
-            x: pageFilter[0].left,
-            y: page.getHeight() - pageFilter[0].top,
-            width: pageFilter[0].width,
-            height: pageFilter[0].height
+            x: pageFilter[0].left / scale,
+            y: page.getHeight() - pageFilter[0].top / scale - 38 / scale - pageFilter[0].height / scale,
+            width: pageFilter[0].width / scale,
+            height: pageFilter[0].height / scale
         });
         const pdfBytes = await pdfDoc.save();
         download(pdfBytes, "pdf-lib_modification_example.pdf", "application/pdf");
