@@ -332,9 +332,9 @@ $(function () {
                         '       <div class="l2kd-plugin-element-button" id="l2kd-plugin-element-button-' + element.idSign + '" data-id-sign="' +  element.idSign + '">' +
                         '           <i class="fa fa-times" aria-hidden="true"></i>' +
                         '       </div>' +
-                        '       <div class="l2kd-plugin-element-button-vai-tro-text">' +
-                        '           <span>' + element.vaiTro + '</span>' +
-                        '       </div>' +
+                        // '       <div class="l2kd-plugin-element-button-vai-tro-text">' +
+                        // '           <span>' + element.vaiTro + '</span>' +
+                        // '       </div>' +
                         '   </div>' +
                         '   <div class="smartcav2-plugin-signature" id="l2kd-plugin-element-resize-' + element.idSign +'" style="width: ' + element.width + 'px; height: ' + element.height + 'px;">' +
                         '       <img src="' + element.imageSource + '" />' +
@@ -383,6 +383,7 @@ $(function () {
                                 elementInCanvasArray[findIndex].width = size.width;
                                 elementInCanvasArray[findIndex].height = size.height;
                             }
+                            $(this).parent().css({width: size.width});
                             // const signatureWrapperElement = $("#l2kd-plugin-element-button-167297857973101").parents("div:first");
                             // signatureWrapperElement.css({width: size.width});
                         }
