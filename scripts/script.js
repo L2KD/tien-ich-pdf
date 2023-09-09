@@ -393,7 +393,13 @@ $(function () {
         }
     }
 
-    $("#top-menu-button-huong-dan").click(async function () {
+    $("#top-menu-button-download-pdf").click(async function () {
+        if (pdfFile === null) {
+            alert("Chưa chọn file pdf và ảnh cần chèn");
+            $("#choose-pdf").click();
+            return;
+        }
+
         //Step 2: Read the file using file reader
         let fileReader = new FileReader();
         fileReader.onload = function () {
@@ -408,16 +414,19 @@ $(function () {
         const currentPage = l2kdPDFConfigs.currentPage;
         const pageFilter = elementInCanvasArray.filter(element => element.page === currentPage);
         const scale = l2kdPDFConfigs.scale;
-        var imgData = pageFilter[0].imageArrayBuffer;
         const pdfDoc = await PDFDocument.load(arrayBuffer);
-        const pngImage = await pdfDoc.embedPng(imgData);
-        const page = pdfDoc.getPage(currentPage - 1);
-        page.drawImage(pngImage, {
-            x: pageFilter[0].left / scale,
-            y: page.getHeight() - pageFilter[0].top / scale - 38 / scale - pageFilter[0].height / scale,
-            width: pageFilter[0].width / scale,
-            height: pageFilter[0].height / scale
-        });
+        for (let i = 0; i < pageFilter.length; i++) {
+            const imageConfig = pageFilter[i];
+            const imgData = imageConfig.imageArrayBuffer;
+            const pngImage = await pdfDoc.embedPng(imgData);
+            const page = pdfDoc.getPage(currentPage - 1);
+            page.drawImage(pngImage, {
+                x: imageConfig.left / scale,
+                y: page.getHeight() - imageConfig.top / scale - 38 / scale - imageConfig.height / scale,
+                width: imageConfig.width / scale,
+                height: imageConfig.height / scale
+            });
+        }
         const pdfBytes = await pdfDoc.save();
         download(pdfBytes, "pdf-lib_modification_example.pdf", "application/pdf");
     }
