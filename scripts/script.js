@@ -18,6 +18,7 @@ $(function () {
         currentSignImageBase64Data: null
     }
     let l2kdPDFConfigs = {...l2kdPDFDefaultConfigs};
+    let l2kdPDFPageAsImage = [];
 
     // Loaded via <script> tag, create shortcut to access PDF.js exports.
     var PDFJS = window['pdfjs-dist/build/pdf'];
@@ -190,7 +191,53 @@ $(function () {
             l2kdPDFConfigs.currentPage = 1;
             initPdfInfo();
             renderPage(l2kdPDFConfigs.currentPage);
+            convertPageToImage(data);
         });
+    }
+
+    async function convertPageToImage(data) {
+        for (let i = 0; i < data.numPages; i++) {
+            const page = await data.getPage(i + 1);
+            const viewport = page.getViewport({scale: 1.0});
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+            await page.render(renderContext).promise;
+            // const base64Image = canvas.toDataURL('image/jpeg', 0.9).split(',')[1]; // Extract base64 part
+            const base64Image = canvas.toDataURL('image/jpeg', 0.5).split(',')[1]; // Extract base64 part
+            l2kdPDFPageAsImage.push({
+                width: viewport.width,
+                height: viewport.height,
+                base64: base64Image
+            });
+        }
+        console.log(l2kdPDFPageAsImage);
+    }
+
+    $("#top-menu-button-download-compress").click(function () {
+        downloadCompressFile();
+    });
+    async function downloadCompressFile() {
+        const pdfDoc = await PDFDocument.create();
+        for (let i = 0; i < l2kdPDFPageAsImage.length; i++) {
+            const imageData = l2kdPDFPageAsImage[i];
+            const page = pdfDoc.addPage();
+            const jpgImage = await pdfDoc.embedJpg(imageData.base64);
+            page.drawImage(jpgImage, {
+                x: 0,
+                y: 0,
+                width: imageData.width,
+                height: imageData.height
+            });
+        }
+        const pdfBytes = await pdfDoc.save();
+        download(pdfBytes, "pdf-lib_modification_example.pdf", "application/pdf");
     }
 
     /**
