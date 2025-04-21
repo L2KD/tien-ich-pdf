@@ -36,95 +36,105 @@ $(function () {
         loadFileToPdf(file);
     });
 
+    $("#top-menu-button-upload-image").text("Insert");
+
+    // Modal handling
+    const modal = document.getElementById("insert-modal");
+    const closeBtn = document.getElementsByClassName("close")[0];
+    const insertOptions = document.querySelectorAll(".insert-option");
+    const textInputContainer = document.getElementById("text-input-container");
+    const insertConfirmBtn = document.getElementById("insert-confirm");
+
     $("#top-menu-button-upload-image").click(function () {
         if (l2kdPDFData !== null) {
-            $("#choose-image").click();
+            modal.style.display = "block";
         } else {
             alert("Chưa chọn tập tin pdf");
             $("#choose-pdf").click();
         }
     });
 
-    $("#choose-image").change(async function (event) {
-        const file = event.target.files[0];
+    closeBtn.onclick = function() {
+        modal.style.display = "none";
+    }
 
-        var reader = new FileReader();
-        reader.onload = function () {
-            let base64 = reader.result;
-            // base64 = base64.replaceAll("data:image/jpeg;base64,", "").replaceAll("data:image/png;base64,", "");
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
 
-            // const imageElement = document.getElementById("image-no-background-img");
-            const imageElement = document.createElement("img");
-            imageElement.src = base64;
-            imageElement.onload = function handleLoad() {
-                const width = imageElement.width;
-                const height = imageElement.height;
-                // const canvas = document.getElementById("image-no-background-canvas");
-                const canvas = document.createElement("canvas");
-                const ctx = canvas.getContext("2d");
-                const image = imageElement;
-                canvas.height = height;
-                canvas.width = width;
-                ctx.drawImage(image,0,0);
-                var imgd = ctx.getImageData(0, 0, width, height),
-                    pix = imgd.data,
-                    newColor = {r:0,g:0,b:0, a:0};
-                for (var i = 0, n = pix.length; i <n; i += 4) {
-                    var r = pix[i],
-                        g = pix[i+1],
-                        b = pix[i+2];
-                    if(!(r >= 100 && g <= 150)){
-                        // Change the white to the new color.
-                        pix[i] = newColor.r;
-                        pix[i+1] = newColor.g;
-                        pix[i+2] = newColor.b;
-                        pix[i+3] = newColor.a;
-                    } else if (r >= 100 && g <= 150) {
-                        pix[i] = 255;
-                        pix[i+1] = 0;
-                        pix[i+2] = 0;
-                    }
-                }
-                ctx.putImageData(imgd, 0, 0);
-                const base64Canvas  = canvas.toDataURL();
-                console.log(base64Canvas);
+    insertOptions.forEach(option => {
+        option.addEventListener("click", function() {
+            // Uncheck all radio buttons
+            document.querySelectorAll('input[name="insert-type"]').forEach(radio => {
+                radio.checked = false;
+            });
+            
+            // Check the clicked option's radio button
+            const radio = this.querySelector('input[type="radio"]');
+            radio.checked = true;
 
-                var req = new XMLHttpRequest;
-                req.open('GET', base64Canvas);
-                req.responseType = 'arraybuffer';
-                req.onload = function fileLoaded(e)
-                {
-                    var byteArray = new Uint8Array(e.target.response);
-                    // var shortArray = new Int16Array(e.target.response);
-                    // var unsignedShortArray = new Int16Array(e.target.response);
-                    // etc.
-
-                    elementInCanvasArray.push({
-                        idSign: new Date().getTime(),
-                        imageSource: base64Canvas,
-                        vaiTro: "vaiTro",
-                        top: 300,
-                        left: 300,
-                        page: l2kdPDFConfigs.currentPage,
-                        width: 250,
-                        height: 150,
-                        vaiTroStt: "1",
-                        imageArrayBuffer: byteArray
-                        // imageArrayBuffer: base64
-                    });
-                    loadElementInCanvas();
-                }
-                req.send();
-
-
-            };
-        };
-        reader.onerror = function (error) {
-            console.log('Error: ', error);
-        };
-        reader.readAsDataURL(file);
-        $(this).val(null);
+            // Show/hide text input based on selection
+            if (radio.value === "text") {
+                textInputContainer.style.display = "block";
+            } else {
+                textInputContainer.style.display = "none";
+            }
+        });
     });
+
+    insertConfirmBtn.onclick = function() {
+        const selectedType = document.querySelector('input[name="insert-type"]:checked');
+        if (!selectedType) {
+            alert("Vui lòng chọn loại nội dung");
+            return;
+        }
+
+        if (selectedType.value === "image") {
+            $("#choose-image").click();
+        } else if (selectedType.value === "text") {
+            const textInput = document.getElementById("text-input");
+            const text = textInput.value.trim();
+            if (!text) {
+                alert("Vui lòng nhập nội dung text");
+                return;
+            }
+            addTextElement(text);
+        }
+
+        modal.style.display = "none";
+        textInputContainer.style.display = "none";
+        document.getElementById("text-input").value = "";
+        document.querySelectorAll('input[name="insert-type"]').forEach(radio => {
+            radio.checked = false;
+        });
+    }
+
+    function addTextElement(text) {
+        const currentPage = l2kdPDFConfigs.currentPage;
+        const fontFamily = document.getElementById("font-family").value;
+        const fontSize = parseInt(document.getElementById("font-size").value);
+        const textColor = document.getElementById("text-color").value;
+        
+        // Thêm text vào elementInCanvasArray
+        elementInCanvasArray.push({
+            idSign: new Date().getTime(),
+            type: "text",
+            content: text,
+            fontFamily: fontFamily,
+            fontSize: fontSize,
+            textColor: textColor,
+            top: 300,
+            left: 300,
+            page: currentPage,
+            width: 200,
+            height: 30
+        });
+
+        // Cập nhật lại canvas để hiển thị text
+        loadElementInCanvas();
+    }
 
     $("#top-menu-input-page").click(function () {
         $(this).select();
@@ -237,7 +247,9 @@ $(function () {
             });
         }
         const pdfBytes = await pdfDoc.save();
-        download(pdfBytes, "pdf-lib_modification_example.pdf", "application/pdf");
+        const originalFileName = pdfFile.name.replaceAll('.pdf', '').replaceAll('.PDF', '');
+        const compressedFileName = originalFileName + '_compressed.pdf';
+        download(pdfBytes, compressedFileName, "application/pdf");
     }
 
     /**
@@ -373,20 +385,33 @@ $(function () {
             if (pageFilter.length > 0) {
                 for (let i = 0; i < pageFilter.length; i++) {
                     const element = pageFilter[i];
-                    const elementInCanvasElement = '' +
-                        '<div class="l2kd-plugin-element-wrapper" id="l2kd-plugin-element-' + element.idSign + '" style="top: ' + element.top + 'px; left: ' + element.left + 'px; position: absolute">' +
-                        '   <div class="l2kd-plugin-element-button-wrapper">' +
-                        '       <div class="l2kd-plugin-element-button" id="l2kd-plugin-element-button-' + element.idSign + '" data-id-sign="' +  element.idSign + '">' +
-                        '           <i class="fa fa-times" aria-hidden="true"></i>' +
-                        '       </div>' +
-                        // '       <div class="l2kd-plugin-element-button-vai-tro-text">' +
-                        // '           <span>' + element.vaiTro + '</span>' +
-                        // '       </div>' +
-                        '   </div>' +
-                        '   <div class="smartcav2-plugin-signature" id="l2kd-plugin-element-resize-' + element.idSign +'" style="width: ' + element.width + 'px; height: ' + element.height + 'px;">' +
-                        '       <img src="' + element.imageSource + '" />' +
-                        '   </div>' +
-                        '</div>';
+                    let elementInCanvasElement;
+
+                    if (element.type === "image") {
+                        elementInCanvasElement = '' +
+                            '<div class="l2kd-plugin-element-wrapper" id="l2kd-plugin-element-' + element.idSign + '" style="top: ' + element.top + 'px; left: ' + element.left + 'px; position: absolute">' +
+                            '   <div class="l2kd-plugin-element-button-wrapper">' +
+                            '       <div class="l2kd-plugin-element-button" id="l2kd-plugin-element-button-' + element.idSign + '" data-id-sign="' + element.idSign + '">' +
+                            '           <i class="fa fa-times" aria-hidden="true"></i>' +
+                            '       </div>' +
+                            '   </div>' +
+                            '   <div class="smartcav2-plugin-signature" id="l2kd-plugin-element-resize-' + element.idSign + '" style="width: ' + element.width + 'px; height: ' + element.height + 'px;">' +
+                            '       <img src="' + element.imageSource + '" />' +
+                            '   </div>' +
+                            '</div>';
+                    } else if (element.type === "text") {
+                        elementInCanvasElement = '' +
+                            '<div class="l2kd-plugin-element-wrapper" id="l2kd-plugin-element-' + element.idSign + '" style="top: ' + element.top + 'px; left: ' + element.left + 'px; position: absolute">' +
+                            '   <div class="l2kd-plugin-element-button-wrapper">' +
+                            '       <div class="l2kd-plugin-element-button" id="l2kd-plugin-element-button-' + element.idSign + '" data-id-sign="' + element.idSign + '">' +
+                            '           <i class="fa fa-times" aria-hidden="true"></i>' +
+                            '       </div>' +
+                            '   </div>' +
+                            '   <div class="text-element" id="l2kd-plugin-element-resize-' + element.idSign + '" style="width: ' + element.width + 'px; height: ' + element.height + 'px; font-family: ' + element.fontFamily + '; font-size: ' + element.fontSize + 'px; color: ' + element.textColor + ';">' +
+                            '       <span>' + element.content + '</span>' +
+                            '   </div>' +
+                            '</div>';
+                    }
 
                     $("#l2kd-plugin-pdf-viewer-" + element.page).append(elementInCanvasElement);
 
@@ -397,7 +422,6 @@ $(function () {
                         elementAdded = listAdded.filter(el => (el.idSign + "") !== idSign);
                         elementAddedFiltered = elementAddedFiltered.filter(el => (el.idSign + "") !== idSign);
                         elementInCanvasArray = listInCanvas.filter(el => (el.idSign + "") !== idSign);
-                        // await loadDanhSachChuKyDaThem();
                         const elementInCanvasElement = document.getElementById("l2kd-plugin-element-" + idSign);
                         if (elementInCanvasElement) {
                             elementInCanvasElement.remove();
@@ -415,13 +439,11 @@ $(function () {
                                 elementInCanvasArray[findIndex].top = position.top;
                                 elementInCanvasArray[findIndex].left = position.left;
                             }
-
-                            console.log('top: ' + position.top);
-                            console.log('left: ' + position.left);
                         }
                     });
+
                     await $("#l2kd-plugin-element-resize-" + element.idSign).resizable({
-                        resize: function ( event, ui ) {
+                        resize: function (event, ui) {
                             const idElement = ui.helper[0].getAttribute("id");
                             const idSign = idElement.replaceAll("l2kd-plugin-element-resize-", "");
                             const size = ui.size;
@@ -431,8 +453,6 @@ $(function () {
                                 elementInCanvasArray[findIndex].height = size.height;
                             }
                             $(this).parent().css({width: size.width});
-                            // const signatureWrapperElement = $("#l2kd-plugin-element-button-167297857973101").parents("div:first");
-                            // signatureWrapperElement.css({width: size.width});
                         }
                     });
                 }
@@ -462,20 +482,44 @@ $(function () {
         const pageFilter = elementInCanvasArray.filter(element => element.page === currentPage);
         const scale = l2kdPDFConfigs.scale;
         const pdfDoc = await PDFDocument.load(arrayBuffer);
+        
         for (let i = 0; i < pageFilter.length; i++) {
-            const imageConfig = pageFilter[i];
-            const imgData = imageConfig.imageArrayBuffer;
-            const pngImage = await pdfDoc.embedPng(imgData);
+            const element = pageFilter[i];
             const page = pdfDoc.getPage(currentPage - 1);
-            page.drawImage(pngImage, {
-                x: imageConfig.left / scale,
-                y: page.getHeight() - imageConfig.top / scale - 38 / scale - imageConfig.height / scale,
-                width: imageConfig.width / scale,
-                height: imageConfig.height / scale
-            });
+            
+            if (element.type === "image") {
+                const imgData = element.imageArrayBuffer;
+                const pngImage = await pdfDoc.embedPng(imgData);
+                page.drawImage(pngImage, {
+                    x: element.left / scale,
+                    y: page.getHeight() - element.top / scale - 38 / scale - element.height / scale,
+                    width: element.width / scale,
+                    height: element.height / scale
+                });
+            } else if (element.type === "text") {
+                // Thêm text vào PDF với các thuộc tính đã chọn
+                page.drawText(element.content, {
+                    x: element.left / scale,
+                    y: page.getHeight() - element.top / scale - 38 / scale,
+                    size: element.fontSize,
+                    font: await pdfDoc.embedFont(StandardFonts[element.fontFamily.replace(/\s+/g, '')] || StandardFonts.TimesRoman),
+                    color: getColorFromName(element.textColor)
+                });
+            }
         }
+        
         const pdfBytes = await pdfDoc.save();
         download(pdfBytes, "pdf-lib_modification_example.pdf", "application/pdf");
+    }
+
+    function getColorFromName(colorName) {
+        switch(colorName) {
+            case 'black': return rgb(0, 0, 0);
+            case 'red': return rgb(1, 0, 0);
+            case 'blue': return rgb(0, 0, 1);
+            case 'green': return rgb(0, 1, 0);
+            default: return rgb(0, 0, 0);
+        }
     }
 
     const SHARE_POPUP_ELEMENT = '' +
@@ -506,4 +550,76 @@ $(function () {
         '       </div>' +
         '   </div>' +
         '</div>'
+
+    $("#choose-image").change(async function (event) {
+        const file = event.target.files[0];
+
+        var reader = new FileReader();
+        reader.onload = function () {
+            let base64 = reader.result;
+
+            const imageElement = document.createElement("img");
+            imageElement.src = base64;
+            imageElement.onload = function handleLoad() {
+                const width = imageElement.width;
+                const height = imageElement.height;
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                const image = imageElement;
+                canvas.height = height;
+                canvas.width = width;
+                ctx.drawImage(image,0,0);
+                var imgd = ctx.getImageData(0, 0, width, height),
+                    pix = imgd.data,
+                    newColor = {r:0,g:0,b:0, a:0};
+                for (var i = 0, n = pix.length; i <n; i += 4) {
+                    var r = pix[i],
+                        g = pix[i+1],
+                        b = pix[i+2];
+                    if(!(r >= 100 && g <= 150)){
+                        // Change the white to the new color.
+                        pix[i] = newColor.r;
+                        pix[i+1] = newColor.g;
+                        pix[i+2] = newColor.b;
+                        pix[i+3] = newColor.a;
+                    } else if (r >= 100 && g <= 150) {
+                        pix[i] = 255;
+                        pix[i+1] = 0;
+                        pix[i+2] = 0;
+                    }
+                }
+                ctx.putImageData(imgd, 0, 0);
+                const base64Canvas  = canvas.toDataURL();
+                console.log(base64Canvas);
+
+                var req = new XMLHttpRequest;
+                req.open('GET', base64Canvas);
+                req.responseType = 'arraybuffer';
+                req.onload = function fileLoaded(e)
+                {
+                    var byteArray = new Uint8Array(e.target.response);
+
+                    elementInCanvasArray.push({
+                        idSign: new Date().getTime(),
+                        imageSource: base64Canvas,
+                        vaiTro: "vaiTro",
+                        top: 300,
+                        left: 300,
+                        page: l2kdPDFConfigs.currentPage,
+                        width: 250,
+                        height: 150,
+                        vaiTroStt: "1",
+                        imageArrayBuffer: byteArray
+                    });
+                    loadElementInCanvas();
+                }
+                req.send();
+            };
+        };
+        reader.onerror = function (error) {
+            console.log('Error: ', error);
+        };
+        reader.readAsDataURL(file);
+        $(this).val(null);
+    });
 });

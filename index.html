@@ -123,5 +123,91 @@
 <!--    <canvas id="image-no-background-canvas"></canvas>-->
 <!--    <img id="image-no-background-img" />-->
 <!--</div>-->
+<!-- Modal Insert -->
+<div id="insert-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Chọn loại nội dung</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="insert-options">
+                <div class="insert-option" data-type="image">
+                    <div class="option-icon">
+                        <i class="fa fa-image"></i>
+                    </div>
+                    <div class="option-name">Ảnh</div>
+                    <div class="option-radio">
+                        <input type="radio" name="insert-type" value="image">
+                    </div>
+                </div>
+                <div class="insert-option" data-type="text">
+                    <div class="option-icon">
+                        <i class="fa fa-font"></i>
+                    </div>
+                    <div class="option-name">Chữ</div>
+                    <div class="option-radio">
+                        <input type="radio" name="insert-type" value="text">
+                    </div>
+                </div>
+            </div>
+            <div id="text-input-container" class="text-input-container" style="display: none;">
+                <input type="text" id="text-input" placeholder="Nhập nội dung text...">
+                <div class="text-options">
+                    <div class="text-option">
+                        <label for="font-family">Font chữ:</label>
+                        <select id="font-family">
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Calibri">Calibri</option>
+                            <option value="Tahoma">Tahoma</option>
+                            <option value="Verdana">Verdana</option>
+                        </select>
+                    </div>
+                    <div class="text-option">
+                        <label for="font-size">Cỡ chữ:</label>
+                        <select id="font-size">
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11" selected>11</option>
+                            <option value="12">12</option>
+                            <option value="14">14</option>
+                            <option value="16">16</option>
+                            <option value="18">18</option>
+                            <option value="20">20</option>
+                        </select>
+                    </div>
+                    <div class="text-option">
+                        <label for="text-color">Màu chữ:</label>
+                        <select id="text-color">
+                            <option value="black" selected>Đen</option>
+                            <option value="red">Đỏ</option>
+                            <option value="blue">Xanh dương</option>
+                            <option value="green">Xanh lá</option>
+                        </select>
+                    </div>
+                    <div class="text-option">
+                        <label>Style:</label>
+                        <div class="style-buttons">
+                            <button id="bold-button" class="style-button" title="Bold">
+                                <i class="fa fa-bold"></i>
+                            </button>
+                            <button id="italic-button" class="style-button" title="Italic">
+                                <i class="fa fa-italic"></i>
+                            </button>
+                            <button id="underline-button" class="style-button" title="Underline">
+                                <i class="fa fa-underline"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="insert-confirm" class="confirm-button">Đồng ý</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
