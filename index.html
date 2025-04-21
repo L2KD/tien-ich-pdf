@@ -9,14 +9,16 @@
     <script src="./scripts/pdf.js"></script>
     <script src="./scripts/pdf.worker.js"></script>
     <script src="./scripts/qrcode.min.js"></script>
-    <script src="./scripts/script.js"></script>
     <script src="./scripts/lottifies.min.js"></script>
     <script src="./scripts/jquery.ui.touch-punch.min.js"></script>
     <script src="./scripts/pdf-lib.min.js"></script>
     <script src="./scripts/download.js"></script>
+    <script src="./scripts/fontkit.umd.min.js"></script>
+    <script src="./scripts/script.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="./styles/jquery-ui.min.css">
     <link rel="stylesheet" href="./styles/style.css">
+
 </head>
 <body>
 <div class="top-menu-wrapper">
@@ -34,10 +36,10 @@
                 <span>Chọn PDF</span>
             </div>
             <input type="file" id="choose-pdf" accept="application/pdf" style="display: none" />
-            <div class="top-menu-button-with-text" typed="green" title="Chọn ảnh"
+            <div class="top-menu-button-with-text" typed="green" title="Insert"
                  id="top-menu-button-upload-image">
-                <i class="fa fa-image" aria-hidden="true"></i>
-                <span>Chọn ảnh</span>
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                <span>Insert</span>
             </div>
             <div class="top-menu-button-with-text" typed="blue" title="Tải pdf sau khi đã thêm ảnh"
                  id="top-menu-button-download-pdf">
@@ -139,6 +141,15 @@
                     <div class="option-name">Ảnh</div>
                     <div class="option-radio">
                         <input type="radio" name="insert-type" value="image">
+                    </div>
+                </div>
+                <div class="insert-option" data-type="stamp">
+                    <div class="option-icon">
+                        <i class="fa fa-bookmark"></i>
+                    </div>
+                    <div class="option-name">Con dấu</div>
+                    <div class="option-radio">
+                        <input type="radio" name="insert-type" value="stamp">
                     </div>
                 </div>
                 <div class="insert-option" data-type="text">

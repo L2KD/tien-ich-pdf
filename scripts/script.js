@@ -36,7 +36,7 @@ $(function () {
         loadFileToPdf(file);
     });
 
-    $("#top-menu-button-upload-image").text("Insert");
+    // $("#top-menu-button-upload-image").text("Insert");
 
     // Modal handling
     const modal = document.getElementById("insert-modal");
@@ -91,7 +91,7 @@ $(function () {
             return;
         }
 
-        if (selectedType.value === "image") {
+        if (selectedType.value === "image" || selectedType.value === "stamp") {
             $("#choose-image").click();
         } else if (selectedType.value === "text") {
             const textInput = document.getElementById("text-input");
@@ -481,7 +481,13 @@ $(function () {
         const currentPage = l2kdPDFConfigs.currentPage;
         const pageFilter = elementInCanvasArray.filter(element => element.page === currentPage);
         const scale = l2kdPDFConfigs.scale;
+        // const pdfDoc = await PDFDocument.load(arrayBuffer);
+
         const pdfDoc = await PDFDocument.load(arrayBuffer);
+        pdfDoc.registerFontkit(fontkit);
+
+        const fontBytes = await fetch('./resources/NotoSans-Regular.ttf').then(res => res.arrayBuffer());
+        const customFont = await pdfDoc.embedFont(fontBytes, { subset: true });
         
         for (let i = 0; i < pageFilter.length; i++) {
             const element = pageFilter[i];
@@ -502,7 +508,7 @@ $(function () {
                     x: element.left / scale,
                     y: page.getHeight() - element.top / scale - 38 / scale,
                     size: element.fontSize,
-                    font: await pdfDoc.embedFont(StandardFonts[element.fontFamily.replace(/\s+/g, '')] || StandardFonts.TimesRoman),
+                    font: customFont,
                     color: getColorFromName(element.textColor)
                 });
             }
@@ -553,11 +559,9 @@ $(function () {
 
     $("#choose-image").change(async function (event) {
         const file = event.target.files[0];
-
         var reader = new FileReader();
         reader.onload = function () {
             let base64 = reader.result;
-
             const imageElement = document.createElement("img");
             imageElement.src = base64;
             imageElement.onload = function handleLoad() {
@@ -565,61 +569,107 @@ $(function () {
                 const height = imageElement.height;
                 const canvas = document.createElement("canvas");
                 const ctx = canvas.getContext("2d");
-                const image = imageElement;
                 canvas.height = height;
                 canvas.width = width;
-                ctx.drawImage(image,0,0);
-                var imgd = ctx.getImageData(0, 0, width, height),
-                    pix = imgd.data,
-                    newColor = {r:0,g:0,b:0, a:0};
-                for (var i = 0, n = pix.length; i <n; i += 4) {
-                    var r = pix[i],
-                        g = pix[i+1],
-                        b = pix[i+2];
-                    if(!(r >= 100 && g <= 150)){
-                        // Change the white to the new color.
-                        pix[i] = newColor.r;
-                        pix[i+1] = newColor.g;
-                        pix[i+2] = newColor.b;
-                        pix[i+3] = newColor.a;
-                    } else if (r >= 100 && g <= 150) {
-                        pix[i] = 255;
-                        pix[i+1] = 0;
-                        pix[i+2] = 0;
-                    }
+                ctx.drawImage(imageElement, 0, 0);
+
+                const selectedType = document.querySelector('input[name="insert-type"]:checked');
+                if (!selectedType) {
+                    alert("Vui lòng chọn loại nội dung");
+                    return;
                 }
-                ctx.putImageData(imgd, 0, 0);
+
+                if (selectedType.value === "stamp") {
+                    var imgd = ctx.getImageData(0, 0, width, height),
+                        pix = imgd.data,
+                        newColor = {r:0,g:0,b:0, a:0};
+                    for (var i = 0, n = pix.length; i <n; i += 4) {
+                        var r = pix[i],
+                            g = pix[i+1],
+                            b = pix[i+2];
+                        if(!(r >= 100 && g <= 150)){
+                            // Change the white to the new color.
+                            pix[i] = newColor.r;
+                            pix[i+1] = newColor.g;
+                            pix[i+2] = newColor.b;
+                            pix[i+3] = newColor.a;
+                        } else if (r >= 100 && g <= 150) {
+                            pix[i] = 255;
+                            pix[i+1] = 0;
+                            pix[i+2] = 0;
+                        }
+                    }
+                    ctx.putImageData(imgd, 0, 0);
+                }
+
                 const base64Canvas  = canvas.toDataURL();
                 console.log(base64Canvas);
 
-                var req = new XMLHttpRequest;
-                req.open('GET', base64Canvas);
-                req.responseType = 'arraybuffer';
-                req.onload = function fileLoaded(e)
-                {
-                    var byteArray = new Uint8Array(e.target.response);
-
-                    elementInCanvasArray.push({
-                        idSign: new Date().getTime(),
-                        imageSource: base64Canvas,
-                        vaiTro: "vaiTro",
-                        top: 300,
-                        left: 300,
-                        page: l2kdPDFConfigs.currentPage,
-                        width: 250,
-                        height: 150,
-                        vaiTroStt: "1",
-                        imageArrayBuffer: byteArray
-                    });
-                    loadElementInCanvas();
+                // Chuyển đổi canvas thành arraybuffer
+                // const base64Canvas = canvas.toDataURL('image/png');
+                const base64Data = base64Canvas.split(',')[1];
+                const binaryString = atob(base64Data);
+                const byteArray = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    byteArray[i] = binaryString.charCodeAt(i);
                 }
-                req.send();
+
+                // Thêm ảnh vào mảng elementInCanvasArray
+                elementInCanvasArray.push({
+                    idSign: new Date().getTime(),
+                    type: "image",
+                    imageSource: base64Canvas,
+                    top: 300,
+                    left: 300,
+                    page: l2kdPDFConfigs.currentPage,
+                    width: 250,
+                    height: 150,
+                    imageArrayBuffer: byteArray
+                });
+
+                loadElementInCanvas();
             };
         };
         reader.onerror = function (error) {
             console.log('Error: ', error);
+            alert('Có lỗi xảy ra khi đọc file ảnh');
         };
         reader.readAsDataURL(file);
         $(this).val(null);
     });
+
+    const boldButton = document.getElementById('bold-button');
+    const italicButton = document.getElementById('italic-button');
+    const underlineButton = document.getElementById('underline-button');
+
+    let currentStyle = {
+        bold: false,
+        italic: false,
+        underline: false
+    };
+
+    boldButton.addEventListener('click', () => {
+        currentStyle.bold = !currentStyle.bold;
+        boldButton.classList.toggle('active');
+        updateTextStyle();
+    });
+
+    italicButton.addEventListener('click', () => {
+        currentStyle.italic = !currentStyle.italic;
+        italicButton.classList.toggle('active');
+        updateTextStyle();
+    });
+
+    underlineButton.addEventListener('click', () => {
+        currentStyle.underline = !currentStyle.underline;
+        underlineButton.classList.toggle('active');
+        updateTextStyle();
+    });
+
+    function updateTextStyle() {
+        const textElement = document.getElementById('text-input');
+        textElement.style.fontWeight = currentStyle.bold ? 'bold' : 'normal';
+        textElement.style.fontStyle = currentStyle.italic ? 'italic' : 'normal';
+        textElement.style.textDecoration = currentStyle.underline ? 'underline' : 'none';
+    }
 });
