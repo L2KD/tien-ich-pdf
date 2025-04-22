@@ -9,6 +9,8 @@ $(function () {
     let elementAdded = [];
     let elementAddedFiltered = [];
     let pdfFile = null;
+    let selectedTypeInsert = "image";
+
     const l2kdPDFDefaultConfigs = {
         scale: 1, // default
         totalPage: 1,
@@ -48,6 +50,7 @@ $(function () {
     $("#top-menu-button-upload-image").click(function () {
         if (l2kdPDFData !== null) {
             modal.style.display = "block";
+            document.querySelectorAll('input[name="insert-type"][value="' + selectedTypeInsert + '"]')[0].click();
         } else {
             alert("Chưa chọn tập tin pdf");
             $("#choose-pdf").click();
@@ -91,6 +94,8 @@ $(function () {
             return;
         }
 
+        selectedTypeInsert = selectedType.value;
+
         if (selectedType.value === "image" || selectedType.value === "stamp") {
             $("#choose-image").click();
         } else if (selectedType.value === "text") {
@@ -113,7 +118,7 @@ $(function () {
 
     function addTextElement(text) {
         const currentPage = l2kdPDFConfigs.currentPage;
-        const fontFamily = document.getElementById("font-family").value;
+        // const fontFamily = document.getElementById("font-family").value;
         const fontSize = parseInt(document.getElementById("font-size").value);
         const textColor = document.getElementById("text-color").value;
         
@@ -122,7 +127,7 @@ $(function () {
             idSign: new Date().getTime(),
             type: "text",
             content: text,
-            fontFamily: fontFamily,
+            // fontFamily: fontFamily,
             fontSize: fontSize,
             textColor: textColor,
             top: 300,
@@ -488,11 +493,11 @@ $(function () {
 
         const fontBytes = await fetch('./resources/NotoSans-Regular.ttf').then(res => res.arrayBuffer());
         const customFont = await pdfDoc.embedFont(fontBytes, { subset: true });
-        
+
         for (let i = 0; i < pageFilter.length; i++) {
             const element = pageFilter[i];
             const page = pdfDoc.getPage(currentPage - 1);
-            
+
             if (element.type === "image") {
                 const imgData = element.imageArrayBuffer;
                 const pngImage = await pdfDoc.embedPng(imgData);
@@ -506,14 +511,14 @@ $(function () {
                 // Thêm text vào PDF với các thuộc tính đã chọn
                 page.drawText(element.content, {
                     x: element.left / scale,
-                    y: page.getHeight() - element.top / scale - 38 / scale,
+                    y: page.getHeight() - element.top / scale - 70 / scale,
                     size: element.fontSize,
                     font: customFont,
                     color: getColorFromName(element.textColor)
                 });
             }
         }
-        
+
         const pdfBytes = await pdfDoc.save();
         download(pdfBytes, "pdf-lib_modification_example.pdf", "application/pdf");
     }
@@ -573,13 +578,7 @@ $(function () {
                 canvas.width = width;
                 ctx.drawImage(imageElement, 0, 0);
 
-                const selectedType = document.querySelector('input[name="insert-type"]:checked');
-                if (!selectedType) {
-                    alert("Vui lòng chọn loại nội dung");
-                    return;
-                }
-
-                if (selectedType.value === "stamp") {
+                if (selectedTypeInsert === "stamp") {
                     var imgd = ctx.getImageData(0, 0, width, height),
                         pix = imgd.data,
                         newColor = {r:0,g:0,b:0, a:0};
@@ -638,38 +637,38 @@ $(function () {
         $(this).val(null);
     });
 
-    const boldButton = document.getElementById('bold-button');
-    const italicButton = document.getElementById('italic-button');
-    const underlineButton = document.getElementById('underline-button');
+    // const boldButton = document.getElementById('bold-button');
+    // const italicButton = document.getElementById('italic-button');
+    // const underlineButton = document.getElementById('underline-button');
 
-    let currentStyle = {
-        bold: false,
-        italic: false,
-        underline: false
-    };
+    // let currentStyle = {
+    //     bold: false,
+    //     italic: false,
+    //     underline: false
+    // };
 
-    boldButton.addEventListener('click', () => {
-        currentStyle.bold = !currentStyle.bold;
-        boldButton.classList.toggle('active');
-        updateTextStyle();
-    });
+    // boldButton.addEventListener('click', () => {
+    //     currentStyle.bold = !currentStyle.bold;
+    //     boldButton.classList.toggle('active');
+    //     updateTextStyle();
+    // });
+    //
+    // italicButton.addEventListener('click', () => {
+    //     currentStyle.italic = !currentStyle.italic;
+    //     italicButton.classList.toggle('active');
+    //     updateTextStyle();
+    // });
+    //
+    // underlineButton.addEventListener('click', () => {
+    //     currentStyle.underline = !currentStyle.underline;
+    //     underlineButton.classList.toggle('active');
+    //     updateTextStyle();
+    // });
 
-    italicButton.addEventListener('click', () => {
-        currentStyle.italic = !currentStyle.italic;
-        italicButton.classList.toggle('active');
-        updateTextStyle();
-    });
-
-    underlineButton.addEventListener('click', () => {
-        currentStyle.underline = !currentStyle.underline;
-        underlineButton.classList.toggle('active');
-        updateTextStyle();
-    });
-
-    function updateTextStyle() {
-        const textElement = document.getElementById('text-input');
-        textElement.style.fontWeight = currentStyle.bold ? 'bold' : 'normal';
-        textElement.style.fontStyle = currentStyle.italic ? 'italic' : 'normal';
-        textElement.style.textDecoration = currentStyle.underline ? 'underline' : 'none';
-    }
+    // function updateTextStyle() {
+    //     const textElement = document.getElementById('text-input');
+    //     textElement.style.fontWeight = currentStyle.bold ? 'bold' : 'normal';
+    //     textElement.style.fontStyle = currentStyle.italic ? 'italic' : 'normal';
+    //     textElement.style.textDecoration = currentStyle.underline ? 'underline' : 'none';
+    // }
 });
