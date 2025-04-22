@@ -407,13 +407,13 @@ $(function () {
                     } else if (element.type === "text") {
                         elementInCanvasElement = '' +
                             '<div class="l2kd-plugin-element-wrapper" id="l2kd-plugin-element-' + element.idSign + '" style="top: ' + element.top + 'px; left: ' + element.left + 'px; position: absolute">' +
-                            '   <div class="l2kd-plugin-element-button-wrapper">' +
+                            '   <div class="l2kd-plugin-element-button-wrapper" style="width: auto">' +
                             '       <div class="l2kd-plugin-element-button" id="l2kd-plugin-element-button-' + element.idSign + '" data-id-sign="' + element.idSign + '">' +
                             '           <i class="fa fa-times" aria-hidden="true"></i>' +
                             '       </div>' +
                             '   </div>' +
-                            '   <div class="text-element" id="l2kd-plugin-element-resize-' + element.idSign + '" style="width: ' + element.width + 'px; height: ' + element.height + 'px; font-family: ' + element.fontFamily + '; font-size: ' + element.fontSize + 'px; color: ' + element.textColor + ';">' +
-                            '       <span>' + element.content + '</span>' +
+                            '   <div id="l2kd-plugin-element-resize-' + element.idSign + '" style="width: auto; font-size: ' + element.fontSize + 'px; color: ' + element.textColor + '; overflow: hidden; cursor: all-scroll;">' +
+                            '       <span style="display: inline-block; line-height: 0.7;">' + element.content + '</span>' +
                             '   </div>' +
                             '</div>';
                     }
@@ -440,6 +440,7 @@ $(function () {
                             const idSign = idElement.replaceAll("l2kd-plugin-element-", "");
                             const position = ui.position;
                             const findIndex = elementInCanvasArray.findIndex(sig => (sig.idSign + "") === idSign);
+                            console.log(position);
                             if (findIndex >= 0) {
                                 elementInCanvasArray[findIndex].top = position.top;
                                 elementInCanvasArray[findIndex].left = position.left;
@@ -447,19 +448,19 @@ $(function () {
                         }
                     });
 
-                    await $("#l2kd-plugin-element-resize-" + element.idSign).resizable({
-                        resize: function (event, ui) {
-                            const idElement = ui.helper[0].getAttribute("id");
-                            const idSign = idElement.replaceAll("l2kd-plugin-element-resize-", "");
-                            const size = ui.size;
-                            const findIndex = elementInCanvasArray.findIndex(sig => (sig.idSign + "") === idSign);
-                            if (findIndex >= 0) {
-                                elementInCanvasArray[findIndex].width = size.width;
-                                elementInCanvasArray[findIndex].height = size.height;
-                            }
-                            $(this).parent().css({width: size.width});
-                        }
-                    });
+                    // await $("#l2kd-plugin-element-resize-" + element.idSign).resizable({
+                    //     resize: function (event, ui) {
+                    //         const idElement = ui.helper[0].getAttribute("id");
+                    //         const idSign = idElement.replaceAll("l2kd-plugin-element-resize-", "");
+                    //         const size = ui.size;
+                    //         const findIndex = elementInCanvasArray.findIndex(sig => (sig.idSign + "") === idSign);
+                    //         if (findIndex >= 0) {
+                    //             elementInCanvasArray[findIndex].width = size.width;
+                    //             elementInCanvasArray[findIndex].height = size.height;
+                    //         }
+                    //         $(this).parent().css({width: size.width});
+                    //     }
+                    // });
                 }
             }
         }
@@ -511,7 +512,7 @@ $(function () {
                 // Thêm text vào PDF với các thuộc tính đã chọn
                 page.drawText(element.content, {
                     x: element.left / scale,
-                    y: page.getHeight() - element.top / scale - 70 / scale,
+                    y: page.getHeight() - element.top / scale - 55 / scale,
                     size: element.fontSize,
                     font: customFont,
                     color: getColorFromName(element.textColor)
@@ -520,7 +521,9 @@ $(function () {
         }
 
         const pdfBytes = await pdfDoc.save();
-        download(pdfBytes, "pdf-lib_modification_example.pdf", "application/pdf");
+        const originalFileName = pdfFile.name.replaceAll('.pdf', '').replaceAll('.PDF', '');
+        const compressedFileName = originalFileName + '_edited.pdf';
+        download(pdfBytes, compressedFileName, "application/pdf");
     }
 
     function getColorFromName(colorName) {
