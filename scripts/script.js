@@ -412,7 +412,7 @@ $(function () {
                             '           <i class="fa fa-times" aria-hidden="true"></i>' +
                             '       </div>' +
                             '   </div>' +
-                            '   <div id="l2kd-plugin-element-resize-' + element.idSign + '" style="width: auto; font-size: ' + element.fontSize + 'px; color: ' + element.textColor + '; overflow: hidden; cursor: all-scroll;">' +
+                            '   <div class="smartcav2-plugin-signature" id="l2kd-plugin-element-resize-' + element.idSign + '" style="width: auto; height: auto; font-size: ' + element.fontSize + 'px; color: ' + element.textColor + '; padding: 10px; overflow: hidden; cursor: all-scroll;">' +
                             '       <span style="display: inline-block; line-height: 0.7;">' + element.content + '</span>' +
                             '   </div>' +
                             '</div>';
@@ -510,10 +510,11 @@ $(function () {
                 });
             } else if (element.type === "text") {
                 // Thêm text vào PDF với các thuộc tính đã chọn
+                const height = $("#l2kd-plugin-element-resize-" + element.idSign + " > span").height();
                 page.drawText(element.content, {
-                    x: element.left / scale,
-                    y: page.getHeight() - element.top / scale - 55 / scale,
-                    size: element.fontSize,
+                    x: (element.left + 10) / scale,
+                    y: page.getHeight() - element.top / scale - 33 / scale - height / scale - (height / 2) / scale - 10 / scale,
+                    size: element.fontSize / scale,
                     font: customFont,
                     color: getColorFromName(element.textColor)
                 });
