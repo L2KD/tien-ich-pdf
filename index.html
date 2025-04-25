@@ -101,12 +101,12 @@
         </div>
     </div>
 </div>
-<div class="l2kd-plugin-left-side-bar-button-wrapper">
-    <div class="l2kd-plugin-left-side-bar-float-button" title="Nhấn để xem danh sách chữ ký đã thêm vào khung ký"
-         id="l2kd-plugin-left-side-bar-float-button">
-        <i class="fa fa-chevron-right" aria-hidden="true"></i>
-    </div>
-</div>
+<!--<div class="l2kd-plugin-left-side-bar-button-wrapper">-->
+<!--    <div class="l2kd-plugin-left-side-bar-float-button" title="Nhấn để xem danh sách chữ ký đã thêm vào khung ký"-->
+<!--         id="l2kd-plugin-left-side-bar-float-button">-->
+<!--        <i class="fa fa-chevron-right" aria-hidden="true"></i>-->
+<!--    </div>-->
+<!--</div>-->
 <div id="l2kd-empty-pdf" class="l2kd-empty-pdf-wrapper">
     <div class="l2kd-empty-pdf-wrapper-image-wrapper">
         <img src="resources/balloon.svg" width="20%" />
@@ -129,7 +129,7 @@
 <div id="insert-modal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>Chọn loại nội dung</h2>
+            <h2 style="color: var(--minie-red)">Chọn loại nội dung</h2>
             <span class="close">&times;</span>
         </div>
         <div class="modal-body">
@@ -163,9 +163,10 @@
                 </div>
             </div>
             <div id="text-input-container" class="text-input-container" style="display: none;">
-                <input type="text" id="text-input" placeholder="Nhập nội dung text...">
                 <div class="text-options">
-<!--                    <div class="text-option">-->
+                    <input type="text" id="text-input" placeholder="Nhập nội dung cần thêm vào pdf" class="top-menu-input-page top-menu-input-page-disabled" style="pointer-events: auto">
+
+                    <!--                    <div class="text-option">-->
 <!--                        <label for="font-family">Font chữ:</label>-->
 <!--                        <select id="font-family">-->
 <!--                            <option value="Times New Roman">Times New Roman</option>-->
@@ -186,7 +187,7 @@
                             <option value="14">14</option>
                             <option value="16">16</option>
                             <option value="18">18</option>
-                            <option value="20">20</option>
+                            <option value="20" selected="selected">20</option>
                             <option value="21">21</option>
                             <option value="22">22</option>
                             <option value="23">23</option>

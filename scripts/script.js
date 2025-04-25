@@ -61,11 +61,11 @@ $(function () {
         modal.style.display = "none";
     }
 
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
+    // window.onclick = function(event) {
+    //     if (event.target == modal) {
+    //         modal.style.display = "none";
+    //     }
+    // }
 
     insertOptions.forEach(option => {
         option.addEventListener("click", function() {
@@ -84,6 +84,9 @@ $(function () {
             } else {
                 textInputContainer.style.display = "none";
             }
+
+            $(".insert-option").removeClass("insert-option-active");
+            $(this).addClass("insert-option-active");
         });
     });
 
@@ -638,6 +641,17 @@ $(function () {
         };
         reader.readAsDataURL(file);
         $(this).val(null);
+    });
+
+    $("#font-size").change(function () {
+        const fontSize = $(this).val();
+        $("#text-input").css("font-size", fontSize + "px");
+    });
+
+    $("#text-color").change(function () {
+        const fontColor = $(this).val();
+        $("#text-color").css("color", fontColor);
+        $("#text-input").css("color", fontColor);
     });
 
     // const boldButton = document.getElementById('bold-button');

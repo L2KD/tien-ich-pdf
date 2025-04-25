@@ -1,6 +1,7 @@
 :root {
     --color-blue: #10417d;
     --color-red: #990000;
+    --minie-red: #ff374b;
     --color-green: #009999;
     --color-white: #FFFFFF;
     --color-orange: #cc2900;
@@ -18,6 +19,7 @@
     --color-super-light-red: #ffbab4;
     --color-hover-transition-1s: all 1s ease;
     --color-hover-transition-05s: all 0.5s ease;
+    --zalo-blue: rgb(0, 104, 255);
 }
 
 @font-face {
@@ -755,7 +757,7 @@ body {
 }
 
 .modal-content {
-    background-color: #fefefe;
+    background-color: white;
     margin: 10% auto;
     padding: 20px;
     border: 1px solid #888;
@@ -802,22 +804,27 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
 }
+.insert-option-active {
+    background-color: var(--color-ancient-blue);
+    border-color: var(--zalo-blue);
+}
 
 .insert-option:hover {
-    border-color: #4CAF50;
+    border-color: var(--zalo-blue);
     background-color: #f9f9f9;
 }
 
 .option-icon {
     font-size: 24px;
     margin-bottom: 10px;
-    color: #4CAF50;
+    color: var(--zalo-blue);
 }
 
 .option-name {
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 10px;
+    color: var(--zalo-blue);
 }
 
 .text-input-container {
@@ -826,10 +833,13 @@ body {
 
 .text-input-container input {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
+    height: 45px;
+    font-size: 20px;
+    color: black;
+    /*padding: 10px;*/
+    /*border: 1px solid #ddd;*/
+    /*border-radius: 4px;*/
+    /*font-size: 16px;*/
 }
 
 .modal-footer {
@@ -838,7 +848,7 @@ body {
 }
 
 .confirm-button {
-    background-color: #4CAF50;
+    background-color: var(--zalo-blue);
     color: white;
     padding: 10px 20px;
     border: none;
@@ -848,7 +858,7 @@ body {
 }
 
 .confirm-button:hover {
-    background-color: #45a049;
+    filter: brightness(0.9);
 }
 
 /* Text element styles */
@@ -878,8 +888,9 @@ body {
 
 .text-option label {
     width: 80px;
-    font-size: 14px;
-    color: #333;
+    font-size: 18px;
+    color: var(--color-blue);
+    font-weight: bold;
 }
 
 .text-option select {
@@ -887,13 +898,16 @@ body {
     padding: 5px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 18px;
     background-color: white;
+    height: 45px;
+    color: var(--color-blue);
+    font-weight: bold;
 }
 
 .text-option select:focus {
     outline: none;
-    border-color: #4CAF50;
+    border-color: var(--zalo-blue);
 }
 
 .style-buttons {
@@ -914,12 +928,39 @@ body {
     background: #f0f0f0;
 }
 
-.style-button.active {
-    background: #4CAF50;
-    color: white;
-    border-color: #4CAF50;
-}
+/*.style-button.active {*/
+/*    background: #4CAF50;*/
+/*    color: white;*/
+/*    border-color: #4CAF50;*/
+/*}*/
 
 .style-button i {
     font-size: 14px;
+}
+input[type='radio']:after {
+    width: 15px;
+    height: 15px;
+    border-radius: 15px;
+    top: -2px;
+    left: -1px;
+    position: relative;
+    background-color: #d1d3d1;
+    content: '';
+    display: inline-block;
+    visibility: visible;
+    border: 2px solid white;
+}
+
+input[type='radio']:checked:after {
+    width: 15px;
+    height: 15px;
+    border-radius: 15px;
+    top: -2px;
+    left: -1px;
+    position: relative;
+    background-color: var(--zalo-blue);
+    content: '';
+    display: inline-block;
+    visibility: visible;
+    border: 2px solid white;
 }
